@@ -23,6 +23,15 @@ public class BookCartDTO {
     private String discountPriceString;
     private String homeNumber;
     private String deliveryAddress;
+    private boolean isVerifyOTP;
+
+    public boolean isIsVerifyOTP() {
+        return isVerifyOTP;
+    }
+
+    public void setIsVerifyOTP(boolean isVerifyOTP) {
+        this.isVerifyOTP = isVerifyOTP;
+    }
 
     public String getHomeNumber() {
         return homeNumber;

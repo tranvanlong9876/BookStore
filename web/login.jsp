@@ -36,11 +36,11 @@
                                 <input class="form-control" type="password" name="txtPassword" value="" />
                             </td>
                         </tr>
-                        <c:if test="${requestScope.LOGINSTATUS != null}">
+                        <c:if test="${requestScope.LOGINSTATUS != null || param.status != null}">
                             <tr>
                                 <td colspan="2">
                                     <font color="red">
-                                    ${requestScope.LOGINSTATUS}
+                                    ${requestScope.LOGINSTATUS} ${param.status}
                                     </font>
                                 </td>
                             </tr> 
@@ -49,6 +49,11 @@
                             <td class="text-center" colspan="2">
                                 <button class="btn btn-primary" type="submit" name="action" value="Login">Đăng Nhập</button>
                                 <button class="btn btn-info" type="submit" name="action" value="SearchBook">Trở Về Trang Chủ</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" colspan="2">
+                                <p>Bạn vẫn chưa có tài khoản ? <a style="text-decoration: underline;" class="btn btn-link" href="DispatchServlet?action=CreateAccPage">Đăng Ký Ngay</a> </p>
                             </td>
                         </tr>
                     </tbody>

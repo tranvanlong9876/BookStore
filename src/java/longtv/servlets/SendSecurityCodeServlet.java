@@ -6,7 +6,7 @@
 package longtv.servlets;
 
 import java.io.IOException;
-import javax.servlet.RequestDispatcher;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,19 +15,21 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import longtv.daos.AccountDAO;
 import longtv.dtos.AccountDTO;
-import longtv.dtos.ErrorServletDTO;
 import longtv.util.EncryptPassword;
+import longtv.util.SendSMSAPI;
+import longtv.util.ValidateInput;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginAccountServlet", urlPatterns = {"/LoginAccountServlet"})
-public class LoginAccountServlet extends HttpServlet {
+@WebServlet(name = "SendSecurityCodeServlet", urlPatterns = {"/SendSecurityCodeServlet"})
+public class SendSecurityCodeServlet extends HttpServlet {
 
-    private static final String ERROR = "error.jsp";
-    private static final String LOGIN_SUCCESS = "SearchBookServlet";
-    private static final String LOGIN_FAILED = "login.jsp";
+    private static final String ERROR = "error";
+    private static final String SUCCESS = "sendsuccess";
+    private static final String INVALID_PHONE_NO = "invalidphone";
+    private static final String ALREADY_EXIST_PHONE = "alreadyexist";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,42 +44,60 @@ public class LoginAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = ERROR;
+        PrintWriter out = response.getWriter();
+        String result = ERROR;
         try {
             HttpSession session = request.getSession();
-            if (session.getAttribute("ACCOUNTDETAIL") == null) {
-                String username = request.getParameter("txtUsername").toLowerCase().trim();
-                String password = request.getParameter("txtPassword");
-
-                if (username == null) {
-                    username = "";
-                }
-
-                if (password == null) {
-                    password = "";
-                }
-                password = EncryptPassword.encodePassword(password);
-                AccountDAO dao = new AccountDAO();
-                AccountDTO account = dao.checkLogin(username, password);
-                if (account != null) {
-                    url = LOGIN_SUCCESS;
-                    session.setAttribute("ACCOUNTDETAIL", account);
+            AccountDTO account = (AccountDTO) session.getAttribute("ACCOUNTDETAIL");
+            int code = (int) (100000 + (Math.random() * 899999));
+            String encryptCode = EncryptPassword.encodePassword(String.valueOf(code));
+            String phoneNumber = "";
+            if (account == null) {
+                phoneNumber = request.getParameter("txtPhone");
+                if (ValidateInput.validatePhone(phoneNumber)) {
+                    if (!ValidateInput.validateExistPhone(phoneNumber, "123")) {
+                        AccountDAO dao = new AccountDAO();
+                        if (dao.checkExistPhoneNumber(phoneNumber)) {
+                            if (dao.updatePhoneSecurity(phoneNumber, encryptCode)) {
+                                result = SUCCESS;
+                            }
+                        } else {
+                            if (dao.insertPhoneSecurity(phoneNumber, encryptCode)) {
+                                result = SUCCESS;
+                            }
+                        }
+                    } else {
+                        result = ALREADY_EXIST_PHONE;
+                    }
                 } else {
-                    url = LOGIN_FAILED;
-                    request.setAttribute("LOGINSTATUS", "Tài Khoản hoặc Mật Khẩu không đúng.");
+                    result = INVALID_PHONE_NO;
                 }
             } else {
-                url = LOGIN_SUCCESS;
+                phoneNumber = account.getPhoneNumber();
+                AccountDAO dao = new AccountDAO();
+                if (dao.checkExistPhoneNumber(phoneNumber)) {
+                    if (dao.updatePhoneSecurity(phoneNumber, encryptCode)) {
+                        result = SUCCESS;
+                    }
+                } else {
+                    if (dao.insertPhoneSecurity(phoneNumber, encryptCode)) {
+                        result = SUCCESS;
+                    }
+                }
             }
+            if (result.equals(SUCCESS)) {
+                SendSMSAPI sendCode = new SendSMSAPI();
+                sendCode.setPhone(phoneNumber);
+                sendCode.setMessage("OTP Dang Ky Tai Khoan Ban Sach: " + code);
+                sendCode.sendGetJSON();
+                System.out.println("Code : " + code );
+            }
+
         } catch (Exception e) {
-            log("ERROR at LoginAccountServlet: " + e.getMessage());
-            String errorServlet = "Lỗi đã xảy ra khi đăng nhập tài khoản";
-            String errorDetail = "Vui lòng liên hệ với quản trị viên để được hỗ trợ hoặc thử lại sau!";
-            ErrorServletDTO error = new ErrorServletDTO(errorServlet, errorDetail);
-            request.setAttribute("ERROR", error);
+            log("ERROR at SendSecurityCodeServlet: " + e.getMessage());
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            out.write(result);
+            out.close();
         }
     }
 

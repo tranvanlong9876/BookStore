@@ -5,29 +5,26 @@
  */
 package longtv.servlets;
 
+import com.google.gson.Gson;
 import java.io.IOException;
-import javax.servlet.RequestDispatcher;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import longtv.daos.AccountDAO;
+import longtv.daos.ShoppingDAO;
 import longtv.dtos.AccountDTO;
-import longtv.dtos.ErrorServletDTO;
-import longtv.util.EncryptPassword;
+import longtv.dtos.ExecutingOrderDTO;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginAccountServlet", urlPatterns = {"/LoginAccountServlet"})
-public class LoginAccountServlet extends HttpServlet {
-
-    private static final String ERROR = "error.jsp";
-    private static final String LOGIN_SUCCESS = "SearchBookServlet";
-    private static final String LOGIN_FAILED = "login.jsp";
+@WebServlet(name = "LoadOrderExecutingServlet", urlPatterns = {"/LoadOrderExecutingServlet"})
+public class LoadOrderExecutingServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,42 +39,19 @@ public class LoginAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = ERROR;
+        PrintWriter out = response.getWriter();
+        List<ExecutingOrderDTO> orderStatusList = new ArrayList<>();
         try {
-            HttpSession session = request.getSession();
-            if (session.getAttribute("ACCOUNTDETAIL") == null) {
-                String username = request.getParameter("txtUsername").toLowerCase().trim();
-                String password = request.getParameter("txtPassword");
-
-                if (username == null) {
-                    username = "";
-                }
-
-                if (password == null) {
-                    password = "";
-                }
-                password = EncryptPassword.encodePassword(password);
-                AccountDAO dao = new AccountDAO();
-                AccountDTO account = dao.checkLogin(username, password);
-                if (account != null) {
-                    url = LOGIN_SUCCESS;
-                    session.setAttribute("ACCOUNTDETAIL", account);
-                } else {
-                    url = LOGIN_FAILED;
-                    request.setAttribute("LOGINSTATUS", "Tài Khoản hoặc Mật Khẩu không đúng.");
-                }
-            } else {
-                url = LOGIN_SUCCESS;
+            AccountDTO account = (AccountDTO) request.getSession().getAttribute("ACCOUNTDETAIL");
+            if (account != null) {
+                String orderID = request.getParameter("orderID");
+                ShoppingDAO dao = new ShoppingDAO();
+                orderStatusList = dao.loadShippingListOfOrder(orderID, 1);
             }
         } catch (Exception e) {
-            log("ERROR at LoginAccountServlet: " + e.getMessage());
-            String errorServlet = "Lỗi đã xảy ra khi đăng nhập tài khoản";
-            String errorDetail = "Vui lòng liên hệ với quản trị viên để được hỗ trợ hoặc thử lại sau!";
-            ErrorServletDTO error = new ErrorServletDTO(errorServlet, errorDetail);
-            request.setAttribute("ERROR", error);
+            e.getMessage();
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            out.write(new Gson().toJson(orderStatusList));
         }
     }
 

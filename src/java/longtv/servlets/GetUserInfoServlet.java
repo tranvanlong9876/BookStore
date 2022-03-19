@@ -15,20 +15,16 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import longtv.daos.AccountDAO;
 import longtv.dtos.AccountDTO;
-import longtv.dtos.ErrorServletDTO;
-import longtv.util.EncryptPassword;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginAccountServlet", urlPatterns = {"/LoginAccountServlet"})
-public class LoginAccountServlet extends HttpServlet {
-
+@WebServlet(name = "GetUserInfoServlet", urlPatterns = {"/GetUserInfoServlet"})
+public class GetUserInfoServlet extends HttpServlet {
     private static final String ERROR = "error.jsp";
-    private static final String LOGIN_SUCCESS = "SearchBookServlet";
-    private static final String LOGIN_FAILED = "login.jsp";
-
+    private static final String SUCCESS = "updateAccount.jsp";
+    private static final String NOT_LOGIN = "SearchBookServlet";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -42,39 +38,22 @@ public class LoginAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = ERROR;
+        String url = ERROR; 
         try {
             HttpSession session = request.getSession();
-            if (session.getAttribute("ACCOUNTDETAIL") == null) {
-                String username = request.getParameter("txtUsername").toLowerCase().trim();
-                String password = request.getParameter("txtPassword");
-
-                if (username == null) {
-                    username = "";
-                }
-
-                if (password == null) {
-                    password = "";
-                }
-                password = EncryptPassword.encodePassword(password);
+            AccountDTO accountSession = (AccountDTO) session.getAttribute("ACCOUNTDETAIL");
+            if(accountSession != null) {
                 AccountDAO dao = new AccountDAO();
-                AccountDTO account = dao.checkLogin(username, password);
-                if (account != null) {
-                    url = LOGIN_SUCCESS;
-                    session.setAttribute("ACCOUNTDETAIL", account);
-                } else {
-                    url = LOGIN_FAILED;
-                    request.setAttribute("LOGINSTATUS", "Tài Khoản hoặc Mật Khẩu không đúng.");
+                AccountDTO accountDetail = dao.getUserInfo(accountSession.getUsername());
+                if(accountDetail != null) {
+                    request.setAttribute("ACCOUNT_INFO", accountDetail);
+                    url = SUCCESS;
                 }
             } else {
-                url = LOGIN_SUCCESS;
+                url = NOT_LOGIN;
             }
         } catch (Exception e) {
-            log("ERROR at LoginAccountServlet: " + e.getMessage());
-            String errorServlet = "Lỗi đã xảy ra khi đăng nhập tài khoản";
-            String errorDetail = "Vui lòng liên hệ với quản trị viên để được hỗ trợ hoặc thử lại sau!";
-            ErrorServletDTO error = new ErrorServletDTO(errorServlet, errorDetail);
-            request.setAttribute("ERROR", error);
+            log("ERROR at GetUserInfoServlet: " + e.getMessage());
         } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);

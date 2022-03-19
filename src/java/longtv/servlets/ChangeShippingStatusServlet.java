@@ -6,28 +6,27 @@
 package longtv.servlets;
 
 import java.io.IOException;
-import javax.servlet.RequestDispatcher;
+import java.io.PrintWriter;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import longtv.daos.AccountDAO;
+import longtv.daos.ShoppingDAO;
 import longtv.dtos.AccountDTO;
-import longtv.dtos.ErrorServletDTO;
-import longtv.util.EncryptPassword;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginAccountServlet", urlPatterns = {"/LoginAccountServlet"})
-public class LoginAccountServlet extends HttpServlet {
+@WebServlet(name = "ChangeShippingStatusServlet", urlPatterns = {"/ChangeShippingStatusServlet"})
+public class ChangeShippingStatusServlet extends HttpServlet {
 
-    private static final String ERROR = "error.jsp";
-    private static final String LOGIN_SUCCESS = "SearchBookServlet";
-    private static final String LOGIN_FAILED = "login.jsp";
+    public static final String ERROR = "error";
+    public static final String SUCCESS_WITHOUT_CHANGE = "successNoChange";
+    public static final String SUCCESS_WITH_CHANGE = "successYesChange";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,42 +41,32 @@ public class LoginAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = ERROR;
+        PrintWriter out = response.getWriter();
+        String code = ERROR;
         try {
-            HttpSession session = request.getSession();
-            if (session.getAttribute("ACCOUNTDETAIL") == null) {
-                String username = request.getParameter("txtUsername").toLowerCase().trim();
-                String password = request.getParameter("txtPassword");
-
-                if (username == null) {
-                    username = "";
+            AccountDTO account = (AccountDTO) request.getSession().getAttribute("ACCOUNTDETAIL");
+            if (account != null) {
+                if (account.getRolename().equals("Shipper")) {
+                    int orderFrom = Integer.parseInt(request.getParameter("cboChangeFrom"));
+                    int orderChange = Integer.parseInt(request.getParameter("cboChangeStatus"));
+                    String description = request.getParameter("txtDescription");
+                    String orderID = request.getParameter("orderID");
+                    ShoppingDAO dao = new ShoppingDAO();
+                    Timestamp time = new Timestamp(new Date().getTime());
+                    if (dao.insertOrderExecuting(orderID, orderFrom, orderChange, description, account.getUsername(), time, 1)) {
+                        code = SUCCESS_WITHOUT_CHANGE;
+                        if (orderFrom != orderChange) {
+                            dao.changeOrderStatus(orderID, orderChange);
+                            code = SUCCESS_WITH_CHANGE;
+                        }
+                    }
                 }
-
-                if (password == null) {
-                    password = "";
-                }
-                password = EncryptPassword.encodePassword(password);
-                AccountDAO dao = new AccountDAO();
-                AccountDTO account = dao.checkLogin(username, password);
-                if (account != null) {
-                    url = LOGIN_SUCCESS;
-                    session.setAttribute("ACCOUNTDETAIL", account);
-                } else {
-                    url = LOGIN_FAILED;
-                    request.setAttribute("LOGINSTATUS", "Tài Khoản hoặc Mật Khẩu không đúng.");
-                }
-            } else {
-                url = LOGIN_SUCCESS;
             }
         } catch (Exception e) {
-            log("ERROR at LoginAccountServlet: " + e.getMessage());
-            String errorServlet = "Lỗi đã xảy ra khi đăng nhập tài khoản";
-            String errorDetail = "Vui lòng liên hệ với quản trị viên để được hỗ trợ hoặc thử lại sau!";
-            ErrorServletDTO error = new ErrorServletDTO(errorServlet, errorDetail);
-            request.setAttribute("ERROR", error);
+            System.out.println(e.getMessage());
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            out.write(code);
+            out.close();
         }
     }
 

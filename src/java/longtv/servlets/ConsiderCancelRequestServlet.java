@@ -6,28 +6,26 @@
 package longtv.servlets;
 
 import java.io.IOException;
-import javax.servlet.RequestDispatcher;
+import java.io.PrintWriter;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import longtv.daos.AccountDAO;
+import longtv.daos.ShoppingDAO;
 import longtv.dtos.AccountDTO;
-import longtv.dtos.ErrorServletDTO;
-import longtv.util.EncryptPassword;
+import longtv.dtos.HistoryHeaderDTO;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginAccountServlet", urlPatterns = {"/LoginAccountServlet"})
-public class LoginAccountServlet extends HttpServlet {
-
-    private static final String ERROR = "error.jsp";
-    private static final String LOGIN_SUCCESS = "SearchBookServlet";
-    private static final String LOGIN_FAILED = "login.jsp";
+@WebServlet(name = "ConsiderCancelRequestServlet", urlPatterns = {"/ConsiderCancelRequestServlet"})
+public class ConsiderCancelRequestServlet extends HttpServlet {
+    private static final String ERROR = "error";
+    private static final String SUCCESS = "success";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,42 +40,34 @@ public class LoginAccountServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        String url = ERROR;
+        PrintWriter out = response.getWriter();
+        String successCode = ERROR;
         try {
-            HttpSession session = request.getSession();
-            if (session.getAttribute("ACCOUNTDETAIL") == null) {
-                String username = request.getParameter("txtUsername").toLowerCase().trim();
-                String password = request.getParameter("txtPassword");
-
-                if (username == null) {
-                    username = "";
+            AccountDTO account = (AccountDTO) request.getSession().getAttribute("ACCOUNTDETAIL");
+            if(account != null) {
+                if(account.getRolename().equals("Admin")) {
+                    int requestCode = Integer.parseInt(request.getParameter("optionCode"));
+                    String orderID = request.getParameter("orderID");
+                    ShoppingDAO dao = new ShoppingDAO();
+                    Timestamp time = new Timestamp(new Date().getTime());
+                    if(requestCode == 1) {
+                        dao.changeOrderStatus(orderID, 4);
+                        dao.insertOrderExecuting(orderID, 6, 4, "Yêu cầu hủy đơn hàng của bạn đã được chấp nhận, đồng thời Shipper tiến hành quá trình trả hàng.", account.getFullname(), time, 1);
+                        HistoryHeaderDTO dto = dao.getOrderHeaderWithOrderID(orderID);
+                        if(dto.getPaymentPaypalID() != null) {
+                            dao.refundUserCheckOut(dto.getPaypalAccount(), dto.getPaymentPaypalID(), dto.getPayAmountDollar(), orderID);
+                        }
+                    } else {
+                        dao.changeOrderStatus(orderID, 2);
+                        dao.insertOrderExecuting(orderID, 6, 2, "Yêu cầu hủy đon hàng của bạn đã bị từ chối, đơn hàng sẽ tiếp tục được giao.", account.getFullname(), time, 1);
+                    }
+                   successCode = SUCCESS;
                 }
-
-                if (password == null) {
-                    password = "";
-                }
-                password = EncryptPassword.encodePassword(password);
-                AccountDAO dao = new AccountDAO();
-                AccountDTO account = dao.checkLogin(username, password);
-                if (account != null) {
-                    url = LOGIN_SUCCESS;
-                    session.setAttribute("ACCOUNTDETAIL", account);
-                } else {
-                    url = LOGIN_FAILED;
-                    request.setAttribute("LOGINSTATUS", "Tài Khoản hoặc Mật Khẩu không đúng.");
-                }
-            } else {
-                url = LOGIN_SUCCESS;
             }
         } catch (Exception e) {
-            log("ERROR at LoginAccountServlet: " + e.getMessage());
-            String errorServlet = "Lỗi đã xảy ra khi đăng nhập tài khoản";
-            String errorDetail = "Vui lòng liên hệ với quản trị viên để được hỗ trợ hoặc thử lại sau!";
-            ErrorServletDTO error = new ErrorServletDTO(errorServlet, errorDetail);
-            request.setAttribute("ERROR", error);
+            e.printStackTrace();
         } finally {
-            RequestDispatcher rd = request.getRequestDispatcher(url);
-            rd.forward(request, response);
+            out.write(successCode);
         }
     }
 

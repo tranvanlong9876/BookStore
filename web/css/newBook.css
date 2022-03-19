@@ -8,6 +8,21 @@ and open the template in the editor.
     Author     : Admin
 */
 
+.password-field.removed {
+    display: none;
+}
+
+.password-field {
+    transition-delay: 1s;
+}
+
+.img-avatar {
+    height: 150px;
+    border: 1px solid black;
+    padding: 1px;
+    border-radius: 10px;
+}
+
 .header{
     margin: auto;
     width: 40%;

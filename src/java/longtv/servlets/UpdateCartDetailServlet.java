@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import longtv.daos.AccountDAO;
 import longtv.daos.BookDAO;
 import longtv.dtos.AccountDTO;
 import longtv.dtos.BookCartDTO;
 import longtv.dtos.ErrorServletDTO;
+import longtv.util.EncryptPassword;
 import longtv.util.ValidateInput;
 
 /**
@@ -99,6 +101,21 @@ public class UpdateCartDetailServlet extends HttpServlet {
                             request.setAttribute("CARTSTATUS", "Thông tin giỏ hàng cập nhật thành công.");
                         } else {
                             request.setAttribute("CARTSTATUS", "Một số sách bị vượt quá số lượng tồn kho, bạn kiểm tra lại nhé!");
+                        }
+
+                        if (!cart.isIsVerifyOTP()) {
+                            String otp = request.getParameter("txtOtp").trim();
+                            if (ValidateInput.validateOTP(otp)) {
+                                otp = EncryptPassword.encodePassword(otp);
+                                if (new AccountDAO().checkCorrectOTP(otp, account.getPhoneNumber())) {
+                                    cart.setIsVerifyOTP(true);
+                                } else {
+                                    String hiddenOTP = account.getPhoneNumber().substring(0, 3) + "***" + account.getPhoneNumber().substring(account.getPhoneNumber().length() - 3, account.getPhoneNumber().length());
+                                    request.setAttribute("CARTSTATUS", "Sai mật mã OTP, vui lòng kiểm tra lại, mã được gửi qua số " + hiddenOTP);
+                                }
+                            } else {
+                                request.setAttribute("CARTSTATUS", "Vui lòng nhập mã OTP đủ 6 số");
+                            }
                         }
                     } else {
                         request.setAttribute("SEARCHBOOK_STATUS", "Giỏ hàng không còn tồn tại nữa, bạn tiếp tục mua sắm nhé!");

@@ -14,6 +14,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="./js/createnew.js" type="text/javascript"></script>
         <link rel="stylesheet" href="./css/newVoucher.css"/>
+        <script src="./js/header_bar.js"></script>
         <link rel="stylesheet" href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
     </head>
@@ -27,7 +28,7 @@
                     <i style="padding-right: 10px;" class="fa fa-book"></i>
                     <span class="fs-4">Book Store</span>
                 </a>
-                <div class="dropdown text-end" style="display: flex; margin-right: 15px; padding-top: 2px">
+                <div class="dropdown text-end" id="account-info" style="display: flex; margin-right: 15px; padding-top: 2px">
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <span style="margin: 5px">
                             <p>Kính Chào Quý Khách</p>
@@ -35,15 +36,12 @@
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
                         <span style="margin: 5px">
-                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} (${sessionScope.ACCOUNTDETAIL.rolename})</p>
+                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} <img style="object-fit: cover;" src="${sessionScope.ACCOUNTDETAIL.imageLink}" alt="mdo" width="32" height="32" class="rounded-circle"></p>
                         </span>
                     </c:if>
                 </div>
                 <ul class="nav justify-content-center">
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
-                        <li style="margin-right: 10px">
-                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
-                        </li>
                         <c:if test="${sessionScope.ACCOUNTDETAIL.rolename eq 'Admin'}">
                             <li style="margin-right: 10px">
                                 <a class="btn btn-warning" href="DispatchServlet?action=CreateNewBook">Thêm Sách Mới</a>
@@ -52,6 +50,9 @@
                                 <a href="DispatchServlet" class="btn btn-success">Quản Lý Sách</a>
                             </li>
                         </c:if>
+                        <li style="margin-right: 10px">
+                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
+                        </li>
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <li>
@@ -139,5 +140,8 @@
                 </tbody>
             </table>
         </form>
+        <script>
+            getListener();
+        </script>
     </body>
 </html>

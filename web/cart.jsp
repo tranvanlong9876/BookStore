@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="./css/cart.css" />
+        <script src="./js/header_bar.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://www.paypal.com/sdk/js?client-id=ARPRg05MtOzL4WedFzLSmyMjbbAu9tXJsxi6Mgxxqlc6ZDadnvYmdA6Fao4IyUluCnHl45ZfUPB0Mxm7"></script>
     </head>
@@ -27,7 +28,7 @@
                     <i style="padding-right: 10px;" class="fa fa-book"></i>
                     <span class="fs-4">Book Store</span>
                 </a>
-                <div class="dropdown text-end" style="display: flex; margin-right: 15px; padding-top: 2px">
+                <div class="dropdown text-end" id="account-info" style="cursor: pointer; display: flex; margin-right: 15px; padding-top: 2px">
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <span style="margin: 5px">
                             <p>Kính Chào Quý Khách</p>
@@ -35,15 +36,12 @@
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
                         <span style="margin: 5px">
-                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} (${sessionScope.ACCOUNTDETAIL.rolename})</p>
+                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} <img style="object-fit: cover;" src="${sessionScope.ACCOUNTDETAIL.imageLink}" alt="mdo" width="32" height="32" class="rounded-circle"></p>
                         </span>
                     </c:if>
                 </div>
                 <ul class="nav justify-content-center">
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
-                        <li style="margin-right: 10px">
-                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
-                        </li>
                         <c:if test="${sessionScope.ACCOUNTDETAIL.rolename eq 'Admin'}">
                             <li style="margin-right: 10px">
                                 <a href="DispatchServlet" class="btn btn-warning">Quản Lý Sách</a>
@@ -57,6 +55,9 @@
                                 <a class="btn btn-warning" href="DispatchServlet">Trở Về Trang Chủ</a>
                             </li>
                         </c:if>
+                        <li style="margin-right: 10px">
+                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
+                        </li>
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <li>
@@ -156,7 +157,8 @@
                                 </div>
                                 <div>
                                     <p style="margin-top: 20px;">Nhập địa chỉ giao hàng của bạn trước khi đặt hàng nhé!</p>
-                                </div>
+                                </div> 
+
                             </div>
                             <div class="col-4">
                                 <div style="margin-right: 20px;" class="total-price text-end">
@@ -170,6 +172,14 @@
                                 <div style="margin-right: 20px;" class="total-price text-end">
                                     <span class="cart__subtotal-title">Tổng Giá: </span>
                                     <span id="total-price-total" class="cart__subtotal">${sessionScope.BOOKCARTDETAIL.totalPriceOfCartCheckOutWithVietnameseCurrency}</span>
+                                </div>
+                                <div id="flex-send-otp" style="margin-left: 27px; height: 40px; display: flex; margin-bottom: 20px;">
+                                    <p style="margin-top: 7px; margin-right: 10px; font-weight: bold; ">Mã Xác Minh: </p>
+                                    <input style="width: 140px; margin-right: 5px;" class="form-control" oninput="changeQuantity()" id="otp-verify" type="text" name="txtOtp" placeholder="6 số trong ĐT" value="${param.txtOtp}" />
+                                    <button class="btn btn-primary" id="btn-send-otp" style="width: 30%;" type="button" onclick="callAjaxSendOTP();">Gửi Mã OTP</button>
+                                    <p id="verify-complete" style="margin-top: 7px; margin-right: 10px;">Đã được xác minh</p>
+                                    <img id="verify-complete-pic" style="object-fit: cover; margin-top: 9px;" src="images/checkmark-green.png" alt="mdo" width="20" height="20" class="rounded-circle">
+                                    <input type="hidden" id="is-verify-otp" value="${sessionScope.BOOKCARTDETAIL.isVerifyOTP}"/>
                                 </div>
                                 <div style="margin-left: 20px;">
                                     <a href="DispatchServlet" class="btn btn-outline-secondary">Tiếp Tục Mua Sắm</a>
@@ -211,6 +221,52 @@
             </div>
         </div>
         <script>
+            getListener();
+
+            function callAjaxSendOTP() {
+                var success = "sendsuccess";
+                var invalidphone = "invalidphone";
+                var alreadyexistphone = "alreadyexist";
+                var count = 30;
+                $.ajax({
+                    url: "DispatchServlet",
+                    method: "POST",
+                    data: {action: "SendSecurityCode"},
+                    success: function (data, textStatus, jqXHR) {
+                        switch (data) {
+                            case success :
+                                document.getElementById("btn-send-otp").disabled = true;
+                                setTimeout(function () {
+                                    document.getElementById("btn-send-otp").disabled = false;
+                                }, 31000);
+                                var intervalId = setInterval(function () {
+                                    document.getElementById("btn-send-otp").innerHTML = count + " s";
+                                    count--;
+                                    if (count == -1) {
+                                        clearInterval(intervalId);
+                                        document.getElementById("btn-send-otp").innerHTML = "Gửi lại mã";
+                                    }
+                                }, 1000);
+                                break;
+                            case alreadyexistphone :
+                                document.querySelector(".status-send-phonecode").style.display = "table-row";
+                                document.getElementById("sendcode-status").innerHTML = "Số điện thoại đã liên kết với một tài khoản khác rồi, vui lòng nhập số mới.";
+                                break;
+                            case invalidphone :
+                                document.querySelector(".status-send-phonecode").style.display = "table-row";
+                                document.getElementById("sendcode-status").innerHTML = "Số điện thoại không đúng định dạng, vui lòng nhập chính xác.";
+                                break;
+                            default :
+                                console.log(data);
+                                break;
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(errorThrown);
+                    }
+                });
+            }
+
             function popupDeleteBox(bookTitle, bookID, bookImage) {
                 document.getElementById("book-delete").innerHTML = bookTitle;
                 document.querySelector(".popup-delete").style.display = "flex";
@@ -247,6 +303,7 @@
             var totalPrice = Math.round(${sessionScope.BOOKCARTDETAIL.totalPriceOfCartCheckOut / 23000} * 100) / 100;
             var homeAddress = document.getElementById("home-delivery").value;
             var address = document.getElementById("address-delivery").value;
+            var checkVerifyOTPStatus = document.getElementById("is-verify-otp").value;
 
             paypal.Buttons({
                 createOrder: function (data, actions) {
@@ -266,10 +323,19 @@
                 }
             }).render('#paypal-button-container');
 
-
-            if (homeAddress.length < 1 || address.length < 1) {
+            if (homeAddress.length < 1 || address.length < 1 || checkVerifyOTPStatus == "false") {
                 document.getElementById("btn-checkout-cart").classList.add("disabled");
                 document.getElementById("paypal-button-container").style.display = "none";
+            }
+            if (checkVerifyOTPStatus == "true") {
+                document.getElementById("otp-verify").style.display = "none";
+                document.getElementById("btn-send-otp").style.display = "none";
+                document.getElementById("verify-complete").style.display = "flex";
+                document.getElementById("verify-complete-pic").style.display = "flex";
+                document.getElementById("flex-send-otp").style = "margin-left: 80px; height: 40px; display: flex; margin-bottom: 20px;";
+            } else {
+                document.getElementById("verify-complete").style.display = "none";
+                document.getElementById("verify-complete-pic").style.display = "none";
             }
         </script>
     </body>

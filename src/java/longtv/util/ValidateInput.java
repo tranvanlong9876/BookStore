@@ -6,8 +6,11 @@
 package longtv.util;
 
 import java.io.Serializable;
+import longtv.daos.AccountDAO;
 import longtv.daos.VoucherDAO;
+import longtv.dtos.AccountDTO;
 import longtv.dtos.CreateNewBookDTO;
+import longtv.dtos.InvalidAccountDTO;
 import longtv.dtos.InvalidBookDTO;
 import longtv.dtos.InvalidVoucherDTO;
 import longtv.dtos.VoucherDTO;
@@ -17,6 +20,173 @@ import longtv.dtos.VoucherDTO;
  * @author Admin
  */
 public class ValidateInput implements Serializable {
+
+    public static boolean validateEmail(String email) {
+        return email.matches("^[a-zA-Z]+[a-zA-Z0-9\\-_]+@[a-zA-Z]+(\\.[a-zA-Z]+){1,3}$");
+    }
+
+    public static boolean validatePhone(String phone) {
+        return phone.matches("[0-9]{5,20}");
+    }
+
+    public static boolean validateUsername(String username) {
+        return (username.length() <= 50 && username.length() > 6);
+    }
+
+    public static boolean validatePassword(String password) {
+        return (password.length() <= 50 && password.length() > 6);
+    }
+
+    public static boolean validateOTP(String otp) {
+        return (otp.length() == 6);
+    }
+
+    public static boolean validateOldPassword(String password) {
+        return (password.length() <= 50 && password.length() > 6);
+    }
+
+    public static boolean validateMatchingPassword(String password, String confirm) {
+        return password.equals(confirm);
+    }
+
+    public static boolean validateFullName(String fullName) {
+        return (fullName.length() >= 2 && fullName.length() <= 50);
+    }
+
+    public static boolean validatePhoto(String photo) {
+        return photo.length() >= 3;
+    }
+
+    public static boolean validateExistEmail(String email, String username) throws Exception {
+        AccountDAO checkAccount = new AccountDAO();
+        return checkAccount.checkExistEmail(email, username);
+    }
+
+    public static boolean validateExistPhone(String phone, String username) throws Exception {
+        AccountDAO checkAccount = new AccountDAO();
+        return checkAccount.checkExistPhone(phone, username);
+    }
+
+    public static boolean validateExistUsername(String username) throws Exception {
+        AccountDAO checkAccount = new AccountDAO();
+        return checkAccount.checkExistUsername(username);
+    }
+
+    public static boolean checkCorrectOTP(String otp, String phone) throws Exception {
+        AccountDAO checkAccount = new AccountDAO();
+        return checkAccount.checkCorrectOTP(otp, phone);
+    }
+
+    public static boolean checkCorrectOldPassword(String username, String password) throws Exception {
+        AccountDAO checkAccount = new AccountDAO();
+        AccountDTO dto = checkAccount.checkLogin(username, password);
+        return dto != null;
+    }
+
+    public static boolean validateHomeNo(String homeNo) throws Exception {
+        return (homeNo.length() <= 50 && homeNo.length() > 6);
+    }
+
+    public static boolean validateDistrict(String district) throws Exception {
+        return (district.length() <= 50 && district.length() > 6);
+    }
+
+    public InvalidAccountDTO checkUpdateAccount(AccountDTO dto, boolean updatePassword) throws Exception {
+        InvalidAccountDTO errorObject = new InvalidAccountDTO();
+        boolean valid = true;
+        if (!validateEmail(dto.getEmail())) {
+            errorObject.setInvalidEmail("Email không hợp lệ");
+            valid = false;
+        }
+
+        if (!validateFullName(dto.getFullname())) {
+            errorObject.setInvalidFullname("Tên quá dài hoặc ngắn");
+            valid = false;
+        }
+
+        if (!validateHomeNo(dto.getHomeNumber())) {
+            errorObject.setInvalidHomeNo("Số nhà, đường không hợp lệ");
+            valid = false;
+        }
+
+        if (!validateDistrict(dto.getDistrict())) {
+            errorObject.setInvalidDistrict("Phường quận không hợp lệ");
+            valid = false;
+        }
+
+        if (validateExistEmail(dto.getEmail(), dto.getUsername())) {
+            errorObject.setInvalidEmail("Email này đã tồn tại!");
+            valid = false;
+        }
+
+        if (updatePassword) {
+            if (!validatePassword(dto.getPassword())) {
+                errorObject.setInvalidPassword("Mật khẩu không hợp lệ");
+                valid = false;
+            }
+            if (!validateMatchingPassword(dto.getPassword(), dto.getConfirmPassword())) {
+                errorObject.setInvalidConfirmPassword("Mật khẩu xác nhận không trùng khớp");
+                valid = false;
+            }
+            if (!validateOldPassword(dto.getOldPassword())) {
+                errorObject.setInvalidOldPassword("Mật khẩu cũ không hợp lệ");
+                valid = false;
+            }
+        }
+        errorObject.setValidateStatus(valid);
+        return errorObject;
+    }
+
+    public InvalidAccountDTO statusValidate(AccountDTO dto) throws Exception {
+        InvalidAccountDTO errorObject = new InvalidAccountDTO();
+        boolean valid = true;
+        if (!validateEmail(dto.getEmail())) {
+            errorObject.setInvalidEmail("Email không hợp lệ");
+            valid = false;
+        }
+
+        if (!validatePassword(dto.getPassword())) {
+            errorObject.setInvalidPassword("Mật khẩu không hợp lệ");
+            valid = false;
+        }
+        if (!validateMatchingPassword(dto.getPassword(), dto.getConfirmPassword())) {
+            errorObject.setInvalidConfirmPassword("Mật khẩu xác nhận không trùng khớp");
+            valid = false;
+        }
+
+        if (!validateUsername(dto.getUsername())) {
+            errorObject.setInvalidUsername("Tài khoản không hợp lệ");
+            valid = false;
+        }
+
+        if (!validateFullName(dto.getFullname())) {
+            errorObject.setInvalidFullname("Tên quá dài hoặc ngắn");
+            valid = false;
+        }
+
+        if (!validateOTP(dto.getOtp())) {
+            errorObject.setWrongOTP("Vui lòng nhập OTP đầy đủ 6 số");
+            valid = false;
+        }
+
+        if (validateExistEmail(dto.getEmail(), dto.getUsername())) {
+            errorObject.setInvalidEmail("Email này đã tồn tại!");
+            valid = false;
+        }
+
+        if (validateExistPhone(dto.getPhoneNumber(), dto.getUsername())) {
+            errorObject.setInvalidPhone("Số điện thoại này đã tồn tại!");
+            valid = false;
+        }
+
+        if (validateExistUsername(dto.getUsername())) {
+            errorObject.setInvalidUsername("Tài khoản này đã tồn tại, vui lòng chọn một tài khoản khác!");
+            valid = false;
+        }
+
+        errorObject.setValidateStatus(valid);
+        return errorObject;
+    }
 
     public static boolean validateBookQuantity(String quantity) {
         int quantityAfterCheck;

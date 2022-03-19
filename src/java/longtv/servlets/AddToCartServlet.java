@@ -56,6 +56,11 @@ public class AddToCartServlet extends HttpServlet {
                     BookCartDTO cart = (BookCartDTO) session.getAttribute("BOOKCARTDETAIL");
                     if (cart == null) {
                         cart = new BookCartDTO();
+                        cart.setIsVerifyOTP(false);
+                        if(account.getDistrict() != null && account.getHomeNumber() != null) {
+                            cart.setHomeNumber(account.getHomeNumber());
+                            cart.setDeliveryAddress(account.getDistrict());
+                        }
                     }
                     String bookID = request.getParameter("txtBookID");
                     BookDAO dao = new BookDAO();

@@ -47,6 +47,10 @@ public class LoadHistoryHeaderServlet extends HttpServlet {
         try {
             HttpSession session = request.getSession();
             AccountDTO account = (AccountDTO) session.getAttribute("ACCOUNTDETAIL");
+            String orderStatus = request.getParameter("cboOrderStatus");
+            if (orderStatus == null || orderStatus.equals("0")) {
+                orderStatus = "";
+            }
             if (account != null) {
                 if (account.getRolename().equals("User")) {
                     String user = account.getUser();
@@ -55,16 +59,16 @@ public class LoadHistoryHeaderServlet extends HttpServlet {
                         date = "";
                     }
                     ShoppingDAO dao = new ShoppingDAO();
-                    List<HistoryHeaderDTO> orderHistory = dao.loadHistoryHeaderUserRole(user, date);
+                    List<HistoryHeaderDTO> orderHistory = dao.loadHistoryHeaderUserRole(user, date, orderStatus);
                     request.setAttribute("HISTORY_DETAIL", orderHistory);
                     url = HISTORY_PAGE;
-                } else if (account.getRolename().equals("Admin")) {
+                } else if (account.getRolename().equals("Admin") || account.getRolename().equals("Shipper")) {
                     String date = request.getParameter("txtDateOrder");
                     if (date == null) {
                         date = "";
                     }
                     ShoppingDAO dao = new ShoppingDAO();
-                    List<HistoryHeaderDTO> orderHistory = dao.loadHistoryHeaderAdminRole(date);
+                    List<HistoryHeaderDTO> orderHistory = dao.loadHistoryHeaderAdminRole(date, orderStatus);
                     request.setAttribute("HISTORY_DETAIL", orderHistory);
                     url = HISTORY_PAGE;
                 }
