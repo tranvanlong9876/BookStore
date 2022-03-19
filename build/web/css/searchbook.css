@@ -1,0 +1,89 @@
+.search-book table tbody tr td {
+    padding: 3px;
+}
+
+.card-list {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 40px;
+}
+
+img.card-img-top {
+    width: 150px;
+    height: 200px;
+    margin: auto;
+    margin-top: 20px;
+}
+
+h5.card-title {
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-height: 25px;
+    height: 50px;
+}
+
+.list-group-item {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+h6.card-subtitle.mb-2.text-muted {
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-height: 25px;
+    height: 25px;
+}
+
+.popup-delete{
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1040;
+}
+
+.popup-content-delete {
+    height: auto;
+    width: 450px;
+    background: #fff;
+    margin-top: 10px;
+    border-radius: 10px;
+    position: fixed;
+}
+
+.form-control-login{
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    color: #565656;
+    padding: 8px 12px;
+    height: 35px;
+    margin-left: 20px;
+}
+
+.close-delete-popup {
+    right: 0.5%;
+    top: 1%;
+    position: absolute;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+#book-delete {
+    color: red;
+}
+
+table.table-delete tbody tr {
+    line-height: 10px;
+}

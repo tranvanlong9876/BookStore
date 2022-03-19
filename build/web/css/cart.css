@@ -1,0 +1,131 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jul 1, 2021, 6:02:06 AM
+    Author     : Admin
+*/
+
+.cart th {
+    font-weight: 400;
+    padding: 20px 0 20px 0px;
+}
+
+.cart__image {
+    width: 95px;
+    height: 120px;
+}
+
+a {
+    color: #3d4246;
+    text-decoration: none;
+}
+
+.cart__image-wrapper {
+    width: 120px;
+}
+
+input.quantity {
+    width: 60px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+}
+
+.cart__qty {
+    justify-content: center;
+    display: flex;
+}
+
+.small-input {
+    margin-top: 5px;
+}
+
+.cart__title {
+    width: 400px;
+}
+
+.cart__footer {
+    padding-top: 40px;
+}
+
+.cart__subtotal {
+    padding-left: 40px;
+}
+
+.btn-outline-secondary, .btn-success {
+    text-transform: uppercase;
+}
+
+.btn-outline-secondary {
+    color: black;
+}
+
+.total-price {
+    margin-bottom: 30px;
+}
+
+.popup-delete{
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1040;
+}
+
+.popup-content-delete {
+    height: auto;
+    width: 450px;
+    background: #fff;
+    margin-top: 10px;
+    border-radius: 10px;
+    position: fixed;
+}
+
+.form-control-login{
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    color: #565656;
+    padding: 8px 12px;
+    height: 35px;
+    margin-left: 20px;
+}
+
+.close-delete-popup {
+    right: 0.5%;
+    top: 1%;
+    position: absolute;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+#book-delete {
+    color: red;
+}
+
+table.table-delete tbody tr {
+    line-height: 10px;
+}
+
+.payment-item {
+    line-height: 65px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.choose-payment-method {
+    margin-top: 30px;
+}
+
+.form-check-input {
+    margin-top: 24px;
+}
+
+.form-check-label {
+    margin-left: 10px;
+}
