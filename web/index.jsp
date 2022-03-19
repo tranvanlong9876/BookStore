@@ -15,17 +15,23 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
         <link href="./css/searchbook.css" rel="stylesheet" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="./js/header_bar.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet"/>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     </head>
     <body>
+        <!-- Messenger Plugin chat Code -->
+        <div id="fb-root"></div>
+        <!-- Your Plugin chat code -->
+        <div id="fb-customer-chat" class="fb-customerchat">
+        </div>
         <div class="container">
             <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
                 <a style="margin-top: -12px" href="DispatchServlet" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                     <i style="padding-right: 10px;" class="fa fa-book"></i>
                     <span class="fs-4">Book Store</span>
                 </a>
-                <div class="dropdown text-end" style="display: flex; margin-right: 15px; padding-top: 2px">
+                <div class="dropdown text-end" id="account-info" style="display: flex; cursor: pointer; margin-right: 15px; padding-top: 2px">
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <span style="margin: 5px">
                             <p>Kính Chào Quý Khách</p>
@@ -33,7 +39,7 @@
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
                         <span style="margin: 5px">
-                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} (${sessionScope.ACCOUNTDETAIL.rolename})</p>
+                            <p>Xin chào, ${sessionScope.ACCOUNTDETAIL.fullname} <img style="object-fit: cover;" src="${sessionScope.ACCOUNTDETAIL.imageLink}" alt="mdo" width="32" height="32" class="rounded-circle"></p>
                         </span>
                     </c:if>
                     <!--
@@ -42,9 +48,6 @@
                 </div>
                 <ul class="nav justify-content-center">
                     <c:if test="${sessionScope.ACCOUNTDETAIL != null}">
-                        <li style="margin-right: 10px">
-                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
-                        </li>
                         <c:if test="${sessionScope.ACCOUNTDETAIL.rolename eq 'Admin'}">
                             <li style="margin-right: 10px">
                                 <a href="DispatchServlet?action=CreateNewBook" class="btn btn-warning">Thêm Sách Mới</a>
@@ -68,10 +71,21 @@
                                 <a class="btn btn-success" href="DispatchServlet?action=HistoryPage">Lịch Sử Đặt Hàng</a>
                             </li>
                         </c:if>
+                        <c:if test="${sessionScope.ACCOUNTDETAIL.rolename eq 'Shipper'}">
+                            <li style="margin-right: 10px">
+                                <a class="btn btn-success" href="DispatchServlet?action=HistoryPage">Quản Lý Đơn Hàng</a>
+                            </li>
+                        </c:if>
+                        <li style="margin-right: 10px">
+                            <a href="DispatchServlet?action=Logout" class="btn btn-danger">Đăng Xuất</a>
+                        </li>
                     </c:if>
                     <c:if test="${sessionScope.ACCOUNTDETAIL == null}">
                         <li>
                             <a class="btn btn-warning" href="DispatchServlet?action=LoginPage">Đăng Nhập</a>
+                        </li>
+                        <li>
+                            <a class="btn btn-success" style="margin-left: 10px;" href="DispatchServlet?action=CreateAccPage">Đăng Ký</a>
                         </li>
                     </c:if>
                 </ul>
@@ -200,6 +214,30 @@
             </div>
         </div>
         <script>
+            
+            var chatbox = document.getElementById('fb-customer-chat');
+            chatbox.setAttribute("page_id", "103866892270386");
+            chatbox.setAttribute("attribution", "biz_inbox");
+            
+            window.fbAsyncInit = function () {
+                FB.init({
+                    xfbml: true,
+                    version: 'v13.0'
+                });
+            };
+
+            (function (d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id))
+                    return;
+                js = d.createElement(s);
+                js.id = id;
+                js.src = 'https://connect.facebook.net/vi_VN/sdk/xfbml.customerchat.js';
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+
+            getListener();
+
             function popupDeleteBox(bookTitle, bookID, bookImage) {
                 document.getElementById("book-delete").innerHTML = bookTitle;
                 document.querySelector(".popup-delete").style.display = "flex";
