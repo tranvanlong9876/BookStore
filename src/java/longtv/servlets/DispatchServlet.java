@@ -41,6 +41,15 @@ public class DispatchServlet extends HttpServlet {
     private static final String CHECKOUT_CART = "CheckOutCartServlet";
     private static final String SHOPPING_HISTORY = "LoadHistoryHeaderServlet";
     private static final String SHOPPING_HISTORY_DETAIL = "LoadHistoryDetailServlet";
+    private static final String CREATE_ACCOUNT_PAGE = "createAccount.jsp";
+    private static final String SEND_SECURITY_CONTROLLER = "SendSecurityCodeServlet";
+    private static final String REGISTER_ACCOUNT_CONTROLLER = "RegisterAccountServlet";
+    private static final String CANCEL_ORDER_CONTROLLER = "CancelOrderServlet";
+    private static final String LOAD_ORDER_EXECUTING = "LoadOrderExecutingServlet";
+    private static final String CHANGE_ORDER_CONTROLLER = "ChangeShippingStatusServlet";
+    private static final String PROCESS_CANCEL_ORDER_CONTROLLER = "ConsiderCancelRequestServlet";
+    private static final String LOAD_UPDATE_PAGE_ACCOUNT = "GetUserInfoServlet";
+    private static final String UPDATE_ACCOUNT_CONTROLLER = "UpdateAccountServlet";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -101,6 +110,24 @@ public class DispatchServlet extends HttpServlet {
                 url = SHOPPING_HISTORY;
             } else if (action.equals("ViewOrderDetail")) {
                 url = SHOPPING_HISTORY_DETAIL;
+            } else if (action.equals("CreateAccPage")) {
+                url = CREATE_ACCOUNT_PAGE;
+            } else if (action.equals("SendSecurityCode")) {
+                url = SEND_SECURITY_CONTROLLER;
+            } else if (action.equals("RegisterAccount")) {
+                url = REGISTER_ACCOUNT_CONTROLLER;
+            } else if (action.equals("RequestCancelOrder")) {
+                url = CANCEL_ORDER_CONTROLLER;
+            } else if (action.equals("GetAllOrderTransfer")) {
+                url = LOAD_ORDER_EXECUTING;
+            } else if (action.equals("ChangeStatusShipping")) {
+                url = CHANGE_ORDER_CONTROLLER;
+            } else if (action.equals("ProcessRequest")) { 
+                url = PROCESS_CANCEL_ORDER_CONTROLLER;
+            } else if (action.equals("updateAccount")) { 
+                url = LOAD_UPDATE_PAGE_ACCOUNT;
+            } else if (action.equals("UpdateAccountForm")) { 
+                url = UPDATE_ACCOUNT_CONTROLLER;
             } else {
                 String errorServlet = "Lỗi đã xảy ra khi điều phối xử lý";
                 String errorDetail = "Hành động chuyển trang không hợp lệ, vui lòng thử lại sau!";

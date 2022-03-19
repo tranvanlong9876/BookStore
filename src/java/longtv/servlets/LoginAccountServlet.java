@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import longtv.daos.AccountDAO;
 import longtv.dtos.AccountDTO;
 import longtv.dtos.ErrorServletDTO;
+import longtv.util.EncryptPassword;
 
 /**
  *
@@ -55,7 +56,7 @@ public class LoginAccountServlet extends HttpServlet {
                 if (password == null) {
                     password = "";
                 }
-
+                password = EncryptPassword.encodePassword(password);
                 AccountDAO dao = new AccountDAO();
                 AccountDTO account = dao.checkLogin(username, password);
                 if (account != null) {

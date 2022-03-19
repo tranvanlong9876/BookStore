@@ -119,6 +119,7 @@ public class CheckOutCartServlet extends HttpServlet {
                                     }
 
                                     if (checkInsertDetail) {
+                                        dao.insertOrderExecuting(orderID, 1, 1, "Đơn hàng đã đặt thành công, vui lòng chờ người bán gửi hàng nhé!", account.getUsername(), time, 1);
                                         url = INSERT_SUCCESS;
                                         checkOutSuccess = true;
                                         if (paymentType.equals("Paypal")) {
@@ -173,7 +174,7 @@ public class CheckOutCartServlet extends HttpServlet {
                     String paypalID = request.getParameter("paypalid");
                     String amountPaypal = request.getParameter("paypalamount");
                     ShoppingDAO dao = new ShoppingDAO();
-                    if (!dao.refundUserCheckOut(accountPaypal, paypalID, amountPaypal)) {
+                    if (!dao.refundUserCheckOut(accountPaypal, paypalID, amountPaypal, "")) {
                         url = ERROR;
                     }
                 }

@@ -1,0 +1,56 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jun 5, 2021, 4:13:02 PM
+    Author     : Admin
+*/
+
+.header{
+    margin: auto;
+    width: 40%;
+}
+
+.img {
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.register-form tbody tr{
+    line-height: 50px;
+}
+
+.title-profile {
+    font-weight: bold;
+    min-width: 80px;
+    display: inline-block;
+}
+
+tr {
+    line-height: 40px;
+    width: 20px;
+}
+
+td {
+    padding-right: 20px;
+}
+
+.enable-createnew-category {
+    font-weight: bold;
+}
+
+
+input#category-input {
+    display: none;
+}
+
+input#check-changenew-category {
+    margin: 15px 0 0 10px;
+    padding: 10px;
+}
+
+.not-valid-book-image {
+    display: none;
+}

@@ -1,0 +1,42 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Mar 17, 2022, 10:05:37 AM
+    Author     : Admin
+*/
+
+.invalid-fullname, .invalid-home-no, .invalid-district, .invalid-email, .invalid-confirm-password, .invalid-old-password, .invalid-password {
+    display: none;
+}
+
+.popup-content-delete {
+    height: 250px;
+    width: 600px;
+    background: #fff;
+    margin-top: 10px;
+    border-radius: 10px;
+    position: fixed;
+}
+
+.close-delete-popup {
+    right: 0.5%;
+    top: 1%;
+    position: absolute;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.popup-delete{
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1040;
+}
