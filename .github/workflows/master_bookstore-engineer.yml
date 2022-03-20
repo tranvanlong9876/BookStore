@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'bookstore-engineer'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C0C74CFD7F82402F9778EF0507A27BB1 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E4D0B7AF893F4757BC1E57A3EB54AC3D }}
           package: '*.war'
