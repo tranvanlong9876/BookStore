@@ -2,8 +2,6 @@
 <Context path="/BookStore">
     <Resource name="bookStore" type="javax.sql.DataSource" auth="Container"
               driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
-              url="jdbc:sqlserver://localhost:1433;databaseName=BookStoreManagement"
-              username="sa"
-              password="123456Long"
+              url="jdbc:sqlserver://bookstore1410.database.windows.net:1433;database=BookStoreManagement;user=tranvanlong9876@bookstore1410;password=123456Long;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;"
     />
 </Context>
